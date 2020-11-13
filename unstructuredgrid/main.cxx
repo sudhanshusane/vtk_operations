@@ -31,13 +31,28 @@ int main(int argc, char *argv[])
 		pts[i*3+2] = p[2];
 	}
 	
-	std::cout << "First point : " << pts[0] << " " << pts[1] << " " << pts[2] << std::endl; 
-	std::cout << "Last point : " << pts[num_points*3-3] << " " << pts[num_points*3-2] << " " << pts[num_points*3-1] << std::endl; 
+//	std::cout << "First point : " << pts[0] << " " << pts[1] << " " << pts[2] << std::endl; 
+//	std::cout << "Last point : " << pts[num_points*3-3] << " " << pts[num_points*3-2] << " " << pts[num_points*3-1] << std::endl; 
 
-	for(int i = 0; i < 5; i++)
+	vtkSmartPointer<vtkIdList> pointIds = vtkSmartPointer<vtkIdList>::New();
+
+	// Assuming each cell has 8 vertices
+	int *point_indices = (int*)malloc(sizeof(int)*num_cells*8);
+	int *cell_start_index = (int*)malloc(sizeof(int)*num_cells);
+	int counter = 0;
+
+	for(int i = 0; i < num_cells; i++)
 	{
-		vtkIdList *ids;
-		ugrid->GetCellPoints(i, ids);
-		std::cout << "Cell " << i << " consists of indices: " << ids[0] << ", " << ids[1] << ", " << ids[2] << ", " << ids[3] << ", " << ids[4] << ", " << ids[5] << ", " << ids[6] << ", " << ids[7] << std::endl;
+		cell_start_index[i] = counter;
+
+		ugrid->GetCellPoints(i, pointIds);
+		for(int n = 0; n < pointIds->GetNumberOfIds(); n++)
+		{
+			counter++;
+			point_indices[i*8+n] = pointIds->GetId(n);			
+		}
 	}		
+	// Test print
+//	std::cout << point_indices[0] << " " << point_indices[8] << " " << point_indices[(num_cells*8)-8] << std::endl;
+//	std::cout << cell_start_index[0] << " " << cell_start_index[1] << " " << cell_start_index[num_cells-1] << std::endl;
 }
